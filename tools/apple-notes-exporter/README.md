@@ -70,7 +70,7 @@ The manifest records how many such folders were excluded.
 
 ### Export format
 
-Current export format version: **2**.
+Current export format version: **3**.
 
 Typical structure:
 
@@ -89,7 +89,7 @@ A manifest contains information similar to:
 ```json
 {
   "format": "apple-notes-export",
-  "version": 2,
+  "version": 3,
   "exportedAt": "2026-09-28T12:00:00.000Z",
   "stats": {
     "duplicateIdsSkipped": 0,
@@ -115,10 +115,12 @@ This reduces the chance of losing a previous successful export because of an int
 - Apple Notes;
 - notes must be available locally in the macOS Notes application;
 - `osascript`, included with macOS;
+- `python3` for the attachment resolver;
 - permission to automate Apple Notes when macOS requests it;
+- Full Disk Access for the terminal/host application so original Notes media can be read;
 - Internet access during installation when using the public installer.
 
-No Git installation, GitHub account, `gh` CLI, Node.js, Python, or Apple Developer account is required.
+No Git installation, GitHub account, `gh` CLI, Node.js, or Apple Developer account is required.
 
 ### Installation from Terminal
 
@@ -184,7 +186,9 @@ so uninstalling the utility does not destroy your exported notes.
 
 ### Current limitations
 
-- Attachments, scans, drawings, and other embedded Apple Notes assets are **not yet exported as separate files**.
+- Original file/media attachments backed by Apple Notes `Media` records are exported into per-note `.assets` directories.
+- Structured Notes objects such as `com.apple.notes.table` are recorded in the manifest as metadata-only; they remain represented by the note HTML rather than as fake files.
+- Some specialized Notes objects (for example Paper/drawing/scan representations) may require additional handling and are not yet guaranteed as original standalone files.
 - Note bodies are exported as the HTML returned by Apple Notes automation.
 - The utility currently targets macOS; it does not run directly on iPhone or iPad.
 - The downloadable installer is currently unsigned/not notarized.
@@ -304,10 +308,12 @@ Exporter не начинает сразу перезаписывать папк�
 - Apple Notes;
 - заметки, доступные в приложении Notes на этом Mac;
 - стандартный macOS `osascript`;
+- `python3` для resolver вложений;
 - разрешение macOS на управление Notes;
+- Full Disk Access для Terminal/приложения, запускающего exporter;
 - интернет во время установки через публичный installer.
 
-**Не нужны:** Git, GitHub account, GitHub CLI, Node.js, Python или Apple Developer account.
+**Не нужны:** Git, GitHub account, GitHub CLI, Node.js или Apple Developer account.
 
 ### Установка через Terminal
 
@@ -349,7 +355,7 @@ source ~/.zprofile
 
 ### Разрешения macOS
 
-При первом запуске macOS может запросить разрешение для Terminal или `osascript` на управление приложением Notes. Оно необходимо, чтобы exporter мог прочитать заметки через системный Apple Automation API.
+При первом запуске macOS может запросить разрешение для Terminal или `osascript` на управление приложением Notes. Оно необходимо, чтобы exporter мог прочитать заметки через системный Apple Automation API. Для экспорта оригинальных media-вложений также требуется Full Disk Access для Terminal (или другого приложения, из которого запускается exporter).
 
 При запуске скачанного `Install.command` Gatekeeper также может показать предупреждение о неизвестном разработчике: текущая версия пока распространяется без подписи Apple Developer ID и notarization.
 
@@ -373,7 +379,9 @@ source ~/.zprofile
 
 ### Текущие ограничения
 
-- Вложения, сканы, рисунки и другие embedded assets пока не экспортируются отдельными файлами.
+- Оригинальные файловые/media-вложения, имеющие Apple Notes `Media` record, экспортируются в `.assets` рядом с соответствующей заметкой.
+- Структурированные объекты Notes, например `com.apple.notes.table`, фиксируются в manifest как metadata-only и остаются представлены HTML заметки.
+- Для некоторых специальных объектов Notes (например Paper/drawing/scan) отдельный оригинальный файл пока не гарантируется.
 - Содержимое заметки сохраняется в HTML в том виде, в котором его возвращает Apple Notes automation.
 - Утилита предназначена для macOS и не запускается непосредственно на iPhone/iPad.
 - Downloadable installer пока не подписан и не notarized.
