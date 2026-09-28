@@ -82,8 +82,6 @@ def db_inventory(db, note_pk):
         LEFT JOIN ZICCLOUDSYNCINGOBJECT m ON m.Z_PK = a.ZMEDIA
         WHERE (a.ZNOTE = ? OR a.ZNOTE1 = ?)
           AND a.Z_PK != ?
-          AND COALESCE(a.ZPARENTATTACHMENT, 0) = 0
-          AND COALESCE(a.ZPARENTATTACHMENT1, 0) = 0
         ORDER BY a.Z_PK
         """,
         (note_pk, note_pk, note_pk),
@@ -125,10 +123,16 @@ def main():
             resolved = []
             used_names = set()
 
-            for row in db_inventory(db, note_pk):
+            inventory = db_inventory(db, note_pk)
+            if inventory:
+                print(f"DB inventory: {note.get('title', note_pk)}: {len(inventory)} rows")
+            for row in inventory:
                 (pk, identifier, uti, file_size, media_pk, parent, parent1,
                  fallback_pdf_generation, paper_bundle_generation, title, summary,
                  media_id, filename, media_generation) = row
+
+                if (parent or 0) != 0 or (parent1 or 0) != 0:
+                    continue
 
                 att = dict(jxa_by_pk.get(pk, {}))
                 att["id"] = att.get("id") or f"db-p{pk}"
