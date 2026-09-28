@@ -66,6 +66,21 @@ function exportFolder(folder, accountName, parentParts, outRoot, manifest, seenN
     if (noteId) seenNoteIds[noteId] = true;
     const title = str(note.name());
     const body = str(note.body());
+    const attachmentList = [];
+    let noteAttachments = [];
+    try { noteAttachments = note.attachments(); } catch (_) {}
+    for (let ai = 0; ai < noteAttachments.length; ai++) {
+      const attachment = noteAttachments[ai];
+      let props = {};
+      try { props = attachment.properties(); } catch (_) {}
+      attachmentList.push({
+        id: getId(attachment),
+        name: props.name === null || props.name === undefined ? null : str(props.name),
+        contentIdentifier: props.contentIdentifier === null || props.contentIdentifier === undefined ? null : str(props.contentIdentifier),
+        created: iso(props.creationDate),
+        modified: iso(props.modificationDate)
+      });
+    }
     const stableName = safePart(noteId || ('note-' + i)) + '.html';
     let dir = join(outRoot, 'notes');
     dir = join(dir, safePart(accountName));
@@ -80,7 +95,8 @@ function exportFolder(folder, accountName, parentParts, outRoot, manifest, seenN
       folder: parts.join('/'),
       created: iso(note.creationDate()),
       modified: iso(note.modificationDate()),
-      file: relParts.join('/')
+      file: relParts.join('/'),
+      attachments: attachmentList
     });
   }
   const children = getChildFolders(folder);
@@ -96,7 +112,7 @@ function run(argv) {
   Notes.includeStandardAdditions = true;
   const manifest = {
     format: 'apple-notes-export',
-    version: 2,
+    version: 3,
     exportedAt: new Date().toISOString(),
     stats: { duplicateIdsSkipped: 0, excludedRecentlyDeletedFolders: 0 },
     notes: []
