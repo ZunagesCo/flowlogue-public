@@ -125,8 +125,6 @@ def main():
             used_names = set()
 
             inventory = db_inventory(db, note_pk)
-            if inventory:
-                print(f"DB inventory: {note.get('title', note_pk)}: {len(inventory)} rows")
             for row in inventory:
                 (pk, identifier, uti, file_size, media_pk, parent, parent1,
                  fallback_pdf_generation, paper_bundle_generation, title, summary,
