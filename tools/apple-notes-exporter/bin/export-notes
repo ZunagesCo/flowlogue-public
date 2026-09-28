@@ -22,6 +22,7 @@ rm -rf "$STAGING"
 mkdir -p "$STAGING"
 echo "Exporting Apple Notes..."
 osascript -l JavaScript "$APP_DIR/export-notes.js" "$STAGING"
+python3 "$APP_DIR/resolve-attachments.py" "$STAGING"
 if [[ ! -s "$STAGING/manifest.json" ]]; then
   echo "Export failed: manifest.json was not created." >&2
   exit 1
