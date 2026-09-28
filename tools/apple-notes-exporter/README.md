@@ -175,6 +175,8 @@ On first use, macOS may ask whether Terminal or `osascript` is allowed to contro
 
 If you use the downloadable `Install.command`, macOS Gatekeeper may also warn that the file is from an unidentified developer because the utility is currently distributed without Apple Developer ID signing/notarization.
 
+For original attachments, **Terminal must have Full Disk Access**: open **System Settings → Privacy & Security → Full Disk Access** and enable Terminal. If you change this permission while Terminal is running, quit Terminal completely and reopen it before running `export-notes` again.
+
 ### Uninstall
 
 Run:
@@ -374,6 +376,8 @@ source ~/.zprofile
 При первом запуске macOS может запросить разрешение для Terminal или `osascript` на управление приложением Notes. Оно необходимо, чтобы exporter мог прочитать заметки через системный Apple Automation API. Для экспорта оригинальных media-вложений также требуется Full Disk Access для Terminal (или другого приложения, из которого запускается exporter).
 
 При запуске скачанного `Install.command` Gatekeeper также может показать предупреждение о неизвестном разработчике: текущая версия пока распространяется без подписи Apple Developer ID и notarization.
+
+Для оригинальных вложений **Terminal должен иметь Full Disk Access**: откройте **System Settings → Privacy & Security → Full Disk Access** и включите Terminal. Если разрешение было изменено при уже запущенном Terminal, полностью закройте Terminal и откройте его снова перед повторным `export-notes`.
 
 ### Удаление
 
