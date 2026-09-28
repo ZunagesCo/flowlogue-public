@@ -10,6 +10,7 @@ EXPORT_ROOT="$HOME/Documents/AppleNotesExport"
 
 mkdir -p "$APP_DIR" "$BIN_DIR" "$EXPORT_ROOT"
 curl -fsSL "$REPO_RAW/src/export-notes.js" -o "$APP_DIR/export-notes.js"
+curl -fsSL "$REPO_RAW/src/resolve-attachments.py" -o "$APP_DIR/resolve-attachments.py"
 curl -fsSL "$REPO_RAW/bin/export-notes" -o "$BIN_DIR/export-notes"
 curl -fsSL "$REPO_RAW/uninstall.sh" -o "$APP_DIR/uninstall.sh"
 printf '%s\n' "$VERSION" > "$APP_DIR/VERSION"
