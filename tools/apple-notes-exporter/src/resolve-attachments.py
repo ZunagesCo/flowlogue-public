@@ -82,8 +82,8 @@ def db_inventory(db, note_pk):
         LEFT JOIN ZICCLOUDSYNCINGOBJECT m ON m.Z_PK = a.ZMEDIA
         WHERE a.ZNOTE1 = ?
           AND a.Z_PK != ?
-          AND a.ZPARENTATTACHMENT IS NULL
-          AND a.ZPARENTATTACHMENT1 IS NULL
+          AND COALESCE(a.ZPARENTATTACHMENT, 0) = 0
+          AND COALESCE(a.ZPARENTATTACHMENT1, 0) = 0
         ORDER BY a.Z_PK
         """,
         (note_pk, note_pk),
