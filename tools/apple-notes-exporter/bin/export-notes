@@ -1,6 +1,16 @@
 #!/bin/bash
 set -euo pipefail
+
 APP_DIR="$HOME/Library/Application Support/AppleNotesExporter"
+VERSION_FILE="$APP_DIR/VERSION"
+
+if [[ "${1:-}" == "--version" || "${1:-}" == "-V" ]]; then
+  VERSION="development"
+  [[ -f "$VERSION_FILE" ]] && VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
+  echo "Apple Notes Exporter $VERSION"
+  exit 0
+fi
+
 EXPORT_ROOT="$HOME/Documents/AppleNotesExport"
 STAGING="$EXPORT_ROOT/.staging.$$"
 CURRENT="$EXPORT_ROOT/current"
