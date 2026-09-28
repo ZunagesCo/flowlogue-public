@@ -9,12 +9,38 @@ BIN_DIR="$HOME/.local/bin"
 EXPORT_ROOT="$HOME/Documents/AppleNotesExport"
 
 mkdir -p "$APP_DIR" "$BIN_DIR" "$EXPORT_ROOT"
-curl -fsSL "$REPO_RAW/src/export-notes.js" -o "$APP_DIR/export-notes.js"
-curl -fsSL "$REPO_RAW/src/resolve-attachments.py" -o "$APP_DIR/resolve-attachments.py"
-curl -fsSL "$REPO_RAW/bin/export-notes" -o "$BIN_DIR/export-notes"
-curl -fsSL "$REPO_RAW/uninstall.sh" -o "$APP_DIR/uninstall.sh"
+
+STAGING="$(mktemp -d)"
+cleanup() { rm -rf "$STAGING"; }
+trap cleanup EXIT
+
+download() {
+  local remote="$1"
+  local local_name="$2"
+  curl -fL --retry 3 --retry-all-errors \
+    -H 'Cache-Control: no-cache' \
+    "$REPO_RAW/$remote?ref=$REF" \
+    -o "$STAGING/$local_name"
+  test -s "$STAGING/$local_name"
+}
+
+download "src/export-notes.js" "export-notes.js"
+download "src/resolve-attachments.py" "resolve-attachments.py"
+download "bin/export-notes" "export-notes"
+download "uninstall.sh" "uninstall.sh"
+
+# Validate the complete payload before replacing a working installation.
+grep -q '^def main():' "$STAGING/resolve-attachments.py"
+grep -q 'resolve-attachments.py' "$STAGING/export-notes"
+
+install -m 644 "$STAGING/export-notes.js" "$APP_DIR/export-notes.js"
+install -m 644 "$STAGING/resolve-attachments.py" "$APP_DIR/resolve-attachments.py"
+install -m 755 "$STAGING/export-notes" "$BIN_DIR/export-notes"
+install -m 755 "$STAGING/uninstall.sh" "$APP_DIR/uninstall.sh"
 printf '%s\n' "$VERSION" > "$APP_DIR/VERSION"
-chmod +x "$BIN_DIR/export-notes" "$APP_DIR/uninstall.sh"
+
+trap - EXIT
+cleanup
 
 PROFILE="$HOME/.zprofile"
 touch "$PROFILE"
