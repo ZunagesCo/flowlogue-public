@@ -2,7 +2,7 @@
 
 A lightweight macOS utility that exports Apple Notes into a structured, local format suitable for importing into **FlowLogue** or for keeping as a portable archive.
 
-The exporter is designed to preserve the information needed for reliable, repeatable imports: note identity, account, folder hierarchy, timestamps, title, and HTML content.
+The exporter is designed to preserve the information needed for reliable, repeatable imports: note identity, account, folder hierarchy, timestamps, title, HTML content, and supported original attachments.
 
 > **Privacy:** your Notes stay on your Mac. This utility does not upload note content to GitHub, FlowLogue, or any other service.
 
@@ -29,7 +29,11 @@ For each note, the exporter preserves:
 - creation timestamp;
 - modification timestamp;
 - stable Apple Notes object ID;
-- relative path to the exported note file.
+- relative path to the exported note file;
+- supported original attachments, including media files and Paper/PDF fallback files, in per-note `.assets` directories;
+- attachment metadata and export status in the manifest.
+
+Deleted/ghost attachment records marked by Apple Notes are excluded. Child representations of another attachment are not exported as separate top-level attachments.
 
 It also creates a machine-readable `manifest.json` that allows FlowLogue or another importer to understand the export without guessing folder names or relying only on filenames.
 
@@ -81,7 +85,9 @@ Typical structure:
     └── notes/
         └── <account>/
             └── <folder>/
-                └── <stable-note-id>.html
+                ├── <stable-note-id>.html
+                └── <stable-note-id>.assets/
+                    └── <attachment files>
 ```
 
 A manifest contains information similar to:
@@ -93,7 +99,10 @@ A manifest contains information similar to:
   "exportedAt": "2026-09-28T12:00:00.000Z",
   "stats": {
     "duplicateIdsSkipped": 0,
-    "excludedRecentlyDeletedFolders": 1
+    "excludedRecentlyDeletedFolders": 1,
+    "attachmentsExported": 5,
+    "attachmentsStructured": 2,
+    "attachmentsMissing": 0
   },
   "notes": [],
   "noteCount": 6,
@@ -188,7 +197,8 @@ so uninstalling the utility does not destroy your exported notes.
 
 - Original file/media attachments backed by Apple Notes `Media` records are exported into per-note `.assets` directories.
 - Structured Notes objects such as `com.apple.notes.table` are recorded in the manifest as metadata-only; they remain represented by the note HTML rather than as fake files.
-- Some specialized Notes objects (for example Paper/drawing/scan representations) may require additional handling and are not yet guaranteed as original standalone files.
+- Paper/PDF fallback files are exported when their active Apple Notes database record can be resolved to a unique local PDF.
+- Some specialized Notes objects, especially drawings/scans and other structured representations, may still be metadata-only or require additional handling.
 - Note bodies are exported as the HTML returned by Apple Notes automation.
 - The utility currently targets macOS; it does not run directly on iPhone or iPad.
 - The downloadable installer is currently unsigned/not notarized.
@@ -235,7 +245,11 @@ The main FlowLogue application is not contained in this repository.
 - дата создания;
 - дата последнего изменения;
 - стабильный внутренний ID Apple Notes;
-- путь к экспортированному HTML-файлу.
+- путь к экспортированному HTML-файлу;
+- поддерживаемые оригинальные вложения, включая media-файлы и Paper/PDF fallback-файлы, в `.assets` рядом с заметкой;
+- метаданные вложений и статус их экспорта в manifest.
+
+Удалённые/ghost-записи вложений, помеченные Apple Notes на удаление, исключаются. Дочерние представления другого вложения не экспортируются как отдельные top-level вложения.
 
 Дополнительно создаётся `manifest.json`, содержащий структурированные метаданные всего экспорта.
 
@@ -276,7 +290,7 @@ Apple Notes
 
 ### Формат экспорта
 
-Текущая версия формата: **2**.
+Текущая версия формата: **3**.
 
 Структура выглядит примерно так:
 
@@ -287,7 +301,9 @@ Apple Notes
     └── notes/
         └── <аккаунт>/
             └── <папка>/
-                └── <стабильный-ID>.html
+                ├── <стабильный-ID>.html
+                └── <стабильный-ID>.assets/
+                    └── <файлы вложений>
 ```
 
 В `manifest.json` находятся версия формата, время экспорта, статистика и список заметок с их метаданными.
@@ -381,7 +397,8 @@ source ~/.zprofile
 
 - Оригинальные файловые/media-вложения, имеющие Apple Notes `Media` record, экспортируются в `.assets` рядом с соответствующей заметкой.
 - Структурированные объекты Notes, например `com.apple.notes.table`, фиксируются в manifest как metadata-only и остаются представлены HTML заметки.
-- Для некоторых специальных объектов Notes (например Paper/drawing/scan) отдельный оригинальный файл пока не гарантируется.
+- Paper/PDF fallback-файлы экспортируются, когда активная запись Apple Notes однозначно разрешается в локальный PDF.
+- Некоторые специальные объекты Notes, особенно drawings/scans и другие structured representations, всё ещё могут сохраняться только как metadata или требовать дополнительной обработки.
 - Содержимое заметки сохраняется в HTML в том виде, в котором его возвращает Apple Notes automation.
 - Утилита предназначена для macOS и не запускается непосредственно на iPhone/iPad.
 - Downloadable installer пока не подписан и не notarized.
