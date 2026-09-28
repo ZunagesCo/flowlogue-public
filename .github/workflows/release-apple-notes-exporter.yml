@@ -36,6 +36,8 @@ jobs:
           unzip -q "dist/AppleNotesExporter-$VERSION.zip" -d /tmp/apple-notes-exporter-release-check
           test -x "/tmp/apple-notes-exporter-release-check/Apple Notes Exporter/Install.command"
           test "$(cat "/tmp/apple-notes-exporter-release-check/Apple Notes Exporter/VERSION")" = "$VERSION"
+          cp "dist/AppleNotesExporter-$VERSION.zip" "dist/AppleNotesExporter-latest.zip"
+          cmp "dist/AppleNotesExporter-$VERSION.zip" "dist/AppleNotesExporter-latest.zip"
 
       - name: Create GitHub Release
         env:
@@ -45,5 +47,6 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           gh release create "$GITHUB_REF_NAME" \
             "dist/AppleNotesExporter-$VERSION.zip" \
+            "dist/AppleNotesExporter-latest.zip" \
             --title "Apple Notes Exporter $VERSION" \
             --generate-notes
