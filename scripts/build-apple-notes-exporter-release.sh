@@ -27,6 +27,10 @@ cp "$SRC/README.md" "$PKG/README.txt"
 printf '%s\n' "$VERSION" > "$PKG/VERSION"
 chmod 755 "$PKG/Install.command"
 
+# Release packages must contain a version-pinned bootstrap installer.
+grep -q 'VERSION_FILE="$SCRIPT_DIR/VERSION"' "$PKG/Install.command"
+grep -q 'REF="v$VERSION"' "$PKG/Install.command"
+
 rm -f "$DIST/$NAME.zip"
 (
   cd "$WORK"
