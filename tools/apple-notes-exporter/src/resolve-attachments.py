@@ -101,11 +101,19 @@ def main():
 
     try:
         db = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
-    except sqlite3.OperationalError as exc:
+        # Force an actual read here. macOS privacy denial may be reported only
+        # when SQLite first accesses the database, not when connect() returns.
+        db.execute("SELECT 1").fetchone()
+    except sqlite3.DatabaseError as exc:
         raise SystemExit(
-            "Cannot read Apple Notes database. Grant Full Disk Access to Terminal "
-            "in System Settings > Privacy & Security > Full Disk Access, then retry. "
-            f"({exc})"
+            "\nApple Notes Exporter cannot read the Apple Notes database.\n"
+            "macOS Full Disk Access is required for the Terminal application "
+            "running this exporter.\n\n"
+            "Open System Settings > Privacy & Security > Full Disk Access, "
+            "enable Terminal, then run export-notes again.\n"
+            "If Terminal was already enabled, quit Terminal completely and reopen it "
+            "after changing the permission.\n\n"
+            f"SQLite error: {exc}"
         )
 
     copied = missing = structured = 0
