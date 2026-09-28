@@ -169,13 +169,27 @@ If you installed the utility in an already-open Terminal session and the command
 source ~/.zprofile
 ```
 
-### macOS permissions
+### macOS permissions — required setup
 
-On first use, macOS may ask whether Terminal or `osascript` is allowed to control Notes. The exporter needs this permission to read Notes through Apple's automation interface.
+The exporter uses two separate macOS privacy mechanisms:
 
-If you use the downloadable `Install.command`, macOS Gatekeeper may also warn that the file is from an unidentified developer because the utility is currently distributed without Apple Developer ID signing/notarization.
+1. **Gatekeeper approval** — because the current downloadable `Install.command` is not Developer ID signed/notarized.
+2. **Full Disk Access for Terminal.app** — required to read the private Apple Notes database and original attachment storage.
+3. **Automation permission for Notes** — macOS may ask whether Terminal/`osascript` may control Notes.
 
-For original attachments, **Terminal must have Full Disk Access**: open **System Settings → Privacy & Security → Full Disk Access** and enable Terminal. If you change this permission while Terminal is running, quit Terminal completely and reopen it before running `export-notes` again.
+For a first installation from the downloadable ZIP, use this order:
+
+1. Download and unzip `AppleNotesExporter-latest.zip`.
+2. Double-click `Install.command`.
+3. If macOS blocks it, click **Done**, then open **System Settings → Privacy & Security**, scroll to Security, choose **Open Anyway** for `Install.command`, authenticate, and confirm **Open**.
+4. Before the first attachment export, open **System Settings → Privacy & Security → Full Disk Access** and enable **Terminal**. Full Disk Access belongs to the host application: permission granted to iTerm does not grant it to Terminal.app.
+5. If Terminal was already running when Full Disk Access was enabled, quit Terminal completely with **Terminal → Quit Terminal** / `Cmd+Q`, then reopen it.
+6. Run the installer again if necessary, or run `export-notes`.
+7. If macOS asks whether Terminal/`osascript` may control Notes, allow it.
+
+If Full Disk Access is missing, attachment resolution cannot read `NoteStore.sqlite`; the exporter reports this requirement and asks you to enable it before retrying.
+
+Developer ID signing/notarization can remove the current unidentified-developer Gatekeeper friction, but it does **not** by itself grant Full Disk Access. Access to the protected Notes storage remains a separate macOS privacy permission.
 
 ### Uninstall
 
@@ -371,13 +385,27 @@ export-notes
 source ~/.zprofile
 ```
 
-### Разрешения macOS
+### Разрешения macOS — обязательная настройка
 
-При первом запуске macOS может запросить разрешение для Terminal или `osascript` на управление приложением Notes. Оно необходимо, чтобы exporter мог прочитать заметки через системный Apple Automation API. Для экспорта оригинальных media-вложений также требуется Full Disk Access для Terminal (или другого приложения, из которого запускается exporter).
+Exporter использует несколько независимых механизмов защиты macOS:
 
-При запуске скачанного `Install.command` Gatekeeper также может показать предупреждение о неизвестном разработчике: текущая версия пока распространяется без подписи Apple Developer ID и notarization.
+1. **Разрешение Gatekeeper** — текущий скачиваемый `Install.command` пока не подписан Developer ID и не notarized.
+2. **Full Disk Access для Terminal.app** — необходим для чтения закрытой базы Apple Notes и оригинальных файлов вложений.
+3. **Automation permission для Notes** — macOS может отдельно спросить, разрешено ли Terminal/`osascript` управлять Notes.
 
-Для оригинальных вложений **Terminal должен иметь Full Disk Access**: откройте **System Settings → Privacy & Security → Full Disk Access** и включите Terminal. Если разрешение было изменено при уже запущенном Terminal, полностью закройте Terminal и откройте его снова перед повторным `export-notes`.
+При первой установке из скачанного ZIP действуйте в таком порядке:
+
+1. Скачайте и распакуйте `AppleNotesExporter-latest.zip`.
+2. Дважды нажмите `Install.command`.
+3. Если macOS заблокирует запуск, нажмите **Done**, затем откройте **System Settings → Privacy & Security**, прокрутите до Security, нажмите **Open Anyway** для `Install.command`, подтвердите пароль/Touch ID и затем **Open**.
+4. Перед первым экспортом вложений откройте **System Settings → Privacy & Security → Full Disk Access** и включите **Terminal**. Full Disk Access выдаётся конкретному host-приложению: разрешение для iTerm не распространяется на Terminal.app.
+5. Если Terminal уже был открыт в момент включения Full Disk Access, полностью закройте его через **Terminal → Quit Terminal** / `Cmd+Q`, затем откройте снова.
+6. При необходимости снова запустите installer либо выполните `export-notes`.
+7. Если macOS спросит разрешение Terminal/`osascript` на управление Notes, разрешите его.
+
+Без Full Disk Access resolver вложений не сможет прочитать `NoteStore.sqlite`; exporter выдаст понятное сообщение и попросит включить доступ перед повторным запуском.
+
+Подпись Developer ID и notarization в будущем могут убрать текущее предупреждение Gatekeeper о неизвестном разработчике, но **сами по себе не дают Full Disk Access**. Доступ к защищённому хранилищу Notes остаётся отдельным разрешением macOS.
 
 ### Удаление
 
