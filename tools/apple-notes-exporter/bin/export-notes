@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+APP_DIR="$HOME/Library/Application Support/AppleNotesExporter"
+EXPORT_ROOT="$HOME/Documents/AppleNotesExport"
+STAGING="$EXPORT_ROOT/.staging.$$"
+CURRENT="$EXPORT_ROOT/current"
+PREVIOUS="$EXPORT_ROOT/.previous"
+cleanup() { rm -rf "$STAGING"; }
+trap cleanup EXIT
+mkdir -p "$EXPORT_ROOT"
+rm -rf "$STAGING"
+mkdir -p "$STAGING"
+echo "Exporting Apple Notes..."
+osascript -l JavaScript "$APP_DIR/export-notes.js" "$STAGING"
+if [[ ! -s "$STAGING/manifest.json" ]]; then
+  echo "Export failed: manifest.json was not created." >&2
+  exit 1
+fi
+rm -rf "$PREVIOUS"
+if [[ -d "$CURRENT" ]]; then mv "$CURRENT" "$PREVIOUS"; fi
+mv "$STAGING" "$CURRENT"
+trap - EXIT
+rm -rf "$PREVIOUS"
+echo
+echo "Apple Notes export complete."
+echo "Location:"
+echo "$CURRENT"
+echo
+echo "Manifest:"
+echo "$CURRENT/manifest.json"
