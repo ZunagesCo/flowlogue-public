@@ -80,13 +80,13 @@ def db_inventory(db, note_pk):
                m.ZIDENTIFIER, m.ZFILENAME, m.ZGENERATION1
         FROM ZICCLOUDSYNCINGOBJECT a
         LEFT JOIN ZICCLOUDSYNCINGOBJECT m ON m.Z_PK = a.ZMEDIA
-        WHERE a.ZNOTE1 = ?
+        WHERE (a.ZNOTE = ? OR a.ZNOTE1 = ?)
           AND a.Z_PK != ?
           AND COALESCE(a.ZPARENTATTACHMENT, 0) = 0
           AND COALESCE(a.ZPARENTATTACHMENT1, 0) = 0
         ORDER BY a.Z_PK
         """,
-        (note_pk, note_pk),
+        (note_pk, note_pk, note_pk),
     ).fetchall()
     return rows
 
